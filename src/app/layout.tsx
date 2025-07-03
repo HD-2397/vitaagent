@@ -1,11 +1,15 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { ThemeProvider } from "next-themes";
+/** @format */
 
+import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import {AppProviders} from "@/app/providers/AppProviders";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "VitaAgent",
-  description: "Agentic Resume Critique & Job Match Assistant",
+  title: "Your App",
+  description: "VitaAgent - Resume Critique & Job Match Assistant",
 };
 
 export default function RootLayout({
@@ -15,12 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {children}
-        </ThemeProvider>
+      <body className={inter.className}>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
 }
-
