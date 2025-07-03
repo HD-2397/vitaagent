@@ -23,7 +23,7 @@ export default function AuthForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     let error;
 
     if (isSignIn) {
@@ -43,7 +43,7 @@ export default function AuthForm() {
     if (error) {
       setError(error.message);
     } else {
-      router.push("/upload");
+      router.push("/");
     }
   };
 

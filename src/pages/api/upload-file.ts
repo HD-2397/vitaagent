@@ -63,7 +63,7 @@ export default async function handler(
 
     // Upload file to Supabase Storage ( bucket: resumes )
     // Every file is stored in a folder named after the user's ID,
-    // so that users can only access their own files according to the policies defined in the Supabase 
+    // so that users can only access their own files according to the policies defined in the Supabase
     // storage bucket.
     const { error: uploadError } = await supabase.storage
       .from("resumes")
@@ -75,9 +75,10 @@ export default async function handler(
     if (uploadError) {
       return res
         .status(500)
-        .json({ error: "Failed to upload file to storage" });
+        .json({
+          error: `Failed to upload file to storage: ${uploadError.message}`,
+        });
     }
-
     // Insert metadata into `resume_uploads` table
     const { error: insertError } = await supabase
       .from("resume_uploads")
@@ -100,7 +101,7 @@ export default async function handler(
     return res.status(200).json({
       message: "Resume uploaded and parsed successfully",
       fileName,
-      fileSizeKB,
+      content,
       supabasePath: filePath,
     });
   } catch (err) {
