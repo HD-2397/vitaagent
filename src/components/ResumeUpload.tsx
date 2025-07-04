@@ -62,22 +62,27 @@ export default function ResumeUploadPage() {
     setCritiqueLoading(true);
     setCritiqueResult("");
 
-    const { data, error } = await fetchWithErrorHandling<{ critique: string }>(
-      "/api/run-critique",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          resumeText: parsedResumeText,
-          jobDescription,
-        }),
-      }
-    );
+    const res = await fetch("/api/run-critique", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resumeText: parsedResumeText, jobDescription }),
+    });
 
-    if (error) {
-      setCritiqueResult(`❌ Error: ${error}`);
-    } else {
-      setCritiqueResult(data?.critique || "No critique returned.");
+    if (!res.body) {
+      setCritiqueResult("❌ No stream returned.");
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let result = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      result += chunk;
+      setCritiqueResult(result); // update UI live
     }
 
     setCritiqueLoading(false);
