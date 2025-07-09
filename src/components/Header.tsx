@@ -18,8 +18,7 @@ export default function Header() {
     const { error } = await supabase.auth.signOut();
     if (!error) router.push("/sign-in");
   };
-
-  if (!session) return null; // Don't render header if not authenticated
+  if (!session || !session.user) return null; // Don't render header if not authenticated
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-[#111] px-4 py-3 shadow-sm">

@@ -1,26 +1,32 @@
 /** @format */
+
 "use client";
 
-import { useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export default function ProtectedRoute({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = useSession();
   const router = useRouter();
+  const { session, isLoading } = useSessionContext();
 
   useEffect(() => {
-    if (!session) {
-      router.replace("/sign-in"); // redirect if not authenticated
+    // Wait until loading finishes
+    if (!isLoading && !session) {
+      router.replace("/sign-in");
     }
-  }, [session, router]);
+  }, [session, isLoading, router]);
+
+  if (isLoading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
 
   if (!session) {
-    return null; 
+    return null;
   }
 
   return <>{children}</>;
