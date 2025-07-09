@@ -26,7 +26,6 @@ export default function ResumeGrid({
   const userId = session?.user?.id;
 
   useEffect(() => {
-    
     const fetchResumes = async () => {
       const res = await fetch(`/api/resumes?user_id=${userId}`);
       const data = await res.json();
@@ -34,7 +33,7 @@ export default function ResumeGrid({
       setLoading(false);
     };
     fetchResumes();
-  }, []);
+  }, [userId]);
 
   if (loading)
     return <p className="text-sm text-muted-foreground">Loading resumes...</p>;

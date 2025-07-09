@@ -65,26 +65,29 @@ export async function runAgentWithTools(
     SystemMessagePromptTemplate.fromTemplate(
       `You are a helpful career assistant AI. You have access to tools that help you:
   
-- Critique a candidate's resume against a job description in enough detail
-- Score how well the resume matches the job description
-- Suggest strategies they can use to improve their resume
+  - Critique a candidate's resume against a job description in enough detail
+  - Score how well the resume matches the job description
+  - Suggest strategies they can use to improve their resume
   
-Given a resume and job description, choose the appropriate tool to respond helpfully.`
+  Given a resume and job description:
+  
+  1. If the user has asked a question, prioritize answering it thoughtfully using the most relevant tool(s), especially the strategy tool if the question relates to resume improvement, job matching, or application advice.
+  2. If no question is provided, analyze the resume and job description using the critique and ATS scoring tools to give a helpful and detailed assessment.`
     ),
     HumanMessagePromptTemplate.fromTemplate(
       `Here is the resume:
-
-{resume}
-
-Here is the job description:
-
-{jd}
-
-${
-  userQuestion?.trim()
-    ? `The user has an additional question they'd like you to consider:\n\n"${userQuestion.trim()}"`
-    : ""
-}`.trim()
+  
+  {resume}
+  
+  Here is the job description:
+  
+  {jd}
+  
+  ${
+    userQuestion?.trim()
+      ? `The user has asked the following question. Please prioritize answering it using the strategy tool:\n\n"${userQuestion.trim()}"`
+      : "There is no user question. Please perform a critique and ATS match score."
+  }`.trim()
     ),
     new MessagesPlaceholder("agent_scratchpad"),
   ]);
