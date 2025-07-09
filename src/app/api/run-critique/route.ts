@@ -8,6 +8,7 @@ export async function POST(req: Request) {
   if (!resumeText || !jobDescription) {
     return new Response("Missing data", { status: 400 });
   }
+  console.log("Running agent with tools for critique...");
 
   const encoder = new TextEncoder();
 

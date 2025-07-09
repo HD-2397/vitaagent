@@ -28,11 +28,35 @@ const promptTemplate = ChatPromptTemplate.fromMessages([
   ],
   [
     "human",
-    `Trim the following resume and job description to the most important, relevant sections (e.g. experience, skills, technologies, and responsibilities).
+    `Trim the following resume and job description to only the most important and relevant sections for ATS-based critique and scoring.
   
-  Focus on details that are useful for resume matching and critique. Remove filler or redundant info.
+  ### Guidelines:
   
-  Try to keep the total combined token count under 6000. Prioritize the resume content if needed.
+  1. **Preserve content that improves ATS scoring**, including:
+     - Strong action verbs (e.g., led, built, optimized, implemented).
+     - Measurable achievements and quantified impact.
+     - Skills, tools, technologies, certifications.
+     - Relevant job titles, company names, and dates.
+  
+  2. **Prioritize Job Relevance**:
+     - Keep only experience, projects, and skills that align with the job description.
+     - Summarize long or repetitive entries, but retain evaluative substance.
+  
+  3. **Job Description Trimming**:
+     - Retain all core responsibilities, required skills, and qualifications.
+     - Remove generic intro/outro text, company mission/culture blurbs.
+  
+  4. **Output Limits**:
+     - Try to keep the total combined token count under 6000.
+     - If trimming is needed, prioritize the **resume** over the job description.
+  
+  5. **Format**:
+     - Respond with raw JSON only (no markdown or code blocks).
+     - Structure: 
+       {{
+         "trimmed_resume": "Optimized resume content here...",
+         "trimmed_jd": "Optimized job description content here..."
+  }}
   
   {formatInstructions}
   
@@ -44,6 +68,7 @@ const promptTemplate = ChatPromptTemplate.fromMessages([
   `,
   ],
 ]);
+  
 
 /*
     Using gpt-3.5-turbo for faster, cheaper processing, before passing to Groq for final critique.
@@ -64,6 +89,8 @@ export const TrimContentTool = new DynamicStructuredTool({
     jd: z.string().describe("Full job description text"),
   }),
   func: async ({ resume, jd }) => {
+
+    console.log("Calling TrimContentTool with resume and JD...");
     const prompt = await promptTemplate.formatMessages({
       resume,
       jd,

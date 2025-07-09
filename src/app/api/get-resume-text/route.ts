@@ -12,7 +12,9 @@ export async function GET(req: Request) {
 
   if (!id || !user_id) {
     return new Response("Missing required parameters", { status: 400 });
-  }
+  };
+
+  console.log("Fetching resume text for id: ", id, "and user_id: ", user_id);
 
   const { data, error } = await supabase
     .from("resume_uploads")

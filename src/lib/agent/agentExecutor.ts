@@ -13,6 +13,7 @@ import { ChatGroq } from "@langchain/groq";
 import { TrimContentTool } from "../tools/TrimContentTool";
 import { ATSTool } from "../tools/AtsTool";
 import { CritiqueTool } from "../tools/ResumeCritiqueTool";
+import { StrategyTool } from "../tools/StrategyTool";
 
 /*
 Keeping these commented out for now, as we're using Groq.
@@ -34,7 +35,7 @@ export async function runAgentWithTools(
   tokenStreamHandler?: (token: string) => void,
   userQuestion?: string
 ) {
-  const tools = [CritiqueTool, ATSTool];
+  const tools = [CritiqueTool, ATSTool, StrategyTool];
 
   // Step 1: Trim resume and JD
   const trimResultRaw = await TrimContentTool.invoke({

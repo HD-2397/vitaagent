@@ -12,6 +12,7 @@ import { fetchWithErrorHandling } from "@/lib/fetchWithErrorHandling";
 import ResumeGrid from "./Resumegrid";
 import { useSession } from "@supabase/auth-helpers-react";
 import ReactMarkdown from "react-markdown";
+import { Loader2 } from "lucide-react";
 
 export default function ResumeUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -94,6 +95,7 @@ export default function ResumeUploadPage() {
       const chunk = decoder.decode(value);
       result += chunk;
       setCritiqueResult(result);
+      if (result.length) setCritiqueLoading(false);
     }
 
     setCritiqueLoading(false);
@@ -185,13 +187,21 @@ export default function ResumeUploadPage() {
             <CardTitle>🤖 Critique Result</CardTitle>
           </CardHeader>
           <CardContent>
+            {critiqueLoading && (
+              <div className="flex items-center justify-center py-4 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                Generating critique, please be patient...
+              </div>
+            )}
             {critiqueResult ? (
               <div className="prose text-sm whitespace-pre-wrap border rounded-md p-3 bg-muted max-h-[600px] overflow-y-auto">
                 <ReactMarkdown>{critiqueResult}</ReactMarkdown>
               </div>
             ) : (
               <p className="text-muted-foreground text-sm">
-                The AI&apos;s critique will appear here after analysis.
+                {critiqueLoading
+                  ? ""
+                  : "The AI's critique will appear here after analysis."}
               </p>
             )}
           </CardContent>

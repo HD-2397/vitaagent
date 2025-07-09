@@ -10,8 +10,8 @@ export async function GET(req: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
   }
+  console.log("Fetching resumes for user: ", userId);
 
-  
   const { data, error } = await supabaseAdmin
     .from("resume_uploads")
     .select("*")
