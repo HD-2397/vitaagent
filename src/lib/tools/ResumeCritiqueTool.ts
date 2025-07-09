@@ -10,6 +10,6 @@ export const CritiqueTool = new DynamicStructuredTool({
     jd: z.string().describe("The job description text to use for critique"),
   }),
   func: async ({ resume, jd }) => {
-    return `Pretend you're a hiring manager. Critique this resume:\n\nResume:\n${resume}\n\nFor Job Description:\n${jd}`;
+    return `Pretend you're a hiring manager. Critique this resume:\n\nResume:\n${resume}\n\nFor Job Description:\n${jd}. Be strict and detailed.`;
   },
 });

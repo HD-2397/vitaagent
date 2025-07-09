@@ -9,16 +9,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { fetchWithErrorHandling } from "@/lib/fetchWithErrorHandling";
+import ResumeGrid from "./Resumegrid";
+import { useSession } from "@supabase/auth-helpers-react";
+import ReactMarkdown from "react-markdown";
 
 export default function ResumeUploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [jobDescription, setJobDescription] = useState("");
+  const [userQuestion, setUserQuestion] = useState(""); // ✅ NEW
   const [critiqueLoading, setCritiqueLoading] = useState(false);
   const [critiqueResult, setCritiqueResult] = useState("");
   const [parsedResumeText, setParsedResumeText] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const session = useSession();
+  const userId = session?.user?.id;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploaded = e.target.files?.[0];
@@ -35,7 +42,7 @@ export default function ResumeUploadPage() {
 
     const { data, error } = await fetchWithErrorHandling<{
       fileName: string;
-      content: string; //parsed resume text
+      content: string;
     }>("/api/upload-file", {
       method: "POST",
       body: formData,
@@ -65,7 +72,11 @@ export default function ResumeUploadPage() {
     const res = await fetch("/api/run-critique", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resumeText: parsedResumeText, jobDescription }),
+      body: JSON.stringify({
+        resumeText: parsedResumeText,
+        jobDescription,
+        userQuestion, // ✅ include user question
+      }),
     });
 
     if (!res.body) {
@@ -82,7 +93,7 @@ export default function ResumeUploadPage() {
       if (done) break;
       const chunk = decoder.decode(value);
       result += chunk;
-      setCritiqueResult(result); // update UI live
+      setCritiqueResult(result);
     }
 
     setCritiqueLoading(false);
@@ -93,8 +104,20 @@ export default function ResumeUploadPage() {
       <h1 className="text-2xl font-semibold mb-6 text-center">
         VitaAgent – Resume Upload & Job Match Critique
       </h1>
+
+      <ResumeGrid
+        onSelectResume={async (resumeId, fileName) => {
+          setMessage(`✅ Selected: ${fileName}`);
+          const res = await fetch(
+            `/api/get-resume-text?id=${resumeId}&user_id=${userId}`
+          );
+          const data = await res.json();
+          setParsedResumeText(data?.parsed_text || "");
+        }}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-        {/* Left Section: Upload & JD */}
+        {/* Left Section */}
         <Card>
           <CardHeader>
             <CardTitle>📄 Upload Resume & Paste JD</CardTitle>
@@ -131,26 +154,40 @@ export default function ResumeUploadPage() {
                 onChange={(e) => setJobDescription(e.target.value)}
                 rows={6}
               />
-              <Button
-                onClick={handleRunCritique}
-                disabled={critiqueLoading}
-                className="w-full"
-              >
-                {critiqueLoading ? "Analyzing..." : "Run AI Resume Critique"}
-              </Button>
             </div>
+
+            {/* ✅ User Question Input */}
+            <div className="space-y-2">
+              <Label htmlFor="question">
+                Ask the AI a Custom Question (Optional)
+              </Label>
+              <Input
+                id="question"
+                placeholder="e.g. How can I make my resume stronger for this role?"
+                value={userQuestion}
+                onChange={(e) => setUserQuestion(e.target.value)}
+              />
+            </div>
+
+            <Button
+              onClick={handleRunCritique}
+              disabled={critiqueLoading}
+              className="w-full"
+            >
+              {critiqueLoading ? "Analyzing..." : "Run AI Resume Critique"}
+            </Button>
           </CardContent>
         </Card>
 
-        {/* Right Section: Critique Result */}
+        {/* Right Section */}
         <Card className="h-full">
           <CardHeader>
             <CardTitle>🤖 Critique Result</CardTitle>
           </CardHeader>
           <CardContent>
             {critiqueResult ? (
-              <div className="text-sm whitespace-pre-wrap border rounded-md p-3 bg-muted max-h-[600px] overflow-y-auto">
-                {critiqueResult}
+              <div className="prose text-sm whitespace-pre-wrap border rounded-md p-3 bg-muted max-h-[600px] overflow-y-auto">
+                <ReactMarkdown>{critiqueResult}</ReactMarkdown>
               </div>
             ) : (
               <p className="text-muted-foreground text-sm">

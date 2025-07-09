@@ -45,6 +45,10 @@ const promptTemplate = ChatPromptTemplate.fromMessages([
   ],
 ]);
 
+/*
+    Using gpt-3.5-turbo for faster, cheaper processing, before passing to Groq for final critique.
+    This allows to keep token counts low and avoid hitting Groq's limits.
+*/
 const lightModel = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   model: "gpt-3.5-turbo",

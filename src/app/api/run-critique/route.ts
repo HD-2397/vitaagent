@@ -3,7 +3,7 @@
 import { runAgentWithTools } from "@/lib/agent/agentExecutor";
 
 export async function POST(req: Request) {
-  const { resumeText, jobDescription } = await req.json();
+  const { resumeText, jobDescription, userQuestion } = await req.json();
 
   if (!resumeText || !jobDescription) {
     return new Response("Missing data", { status: 400 });
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       };
 
       try {
-        await runAgentWithTools(resumeText, jobDescription, push);
+        await runAgentWithTools(resumeText, jobDescription, push, userQuestion); // Pass userQuestion
         controller.close();
       } catch (err) {
         console.error("Streaming error:", err);
@@ -35,4 +35,5 @@ export async function POST(req: Request) {
     },
   });
 }
+  
   
