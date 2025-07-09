@@ -103,9 +103,18 @@ export default function ResumeUploadPage() {
 
   return (
     <div className="w-full max-w-[1600px] px-8 py-10 mx-auto">
-      <h1 className="text-2xl font-semibold mb-6 text-center">
-        VitaAgent – Resume Upload & Job Match Critique
-      </h1>
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl font-bold mb-2">
+          VitaAgent – Resume Upload & Job Match Critique
+        </h1>
+        <div className="max-w-2xl mx-auto text-muted-foreground text-sm bg-muted px-4 py-3 rounded-lg shadow-sm">
+          👋 Welcome to your smart assistant for resume critique & job matching.
+          <br />
+          Upload your resume and paste the job description — our AI will give
+          you personalized feedback, a match score, and tips to improve your
+          chances.
+        </div>
+      </div>
 
       <ResumeGrid
         onSelectResume={async (resumeId, fileName) => {
