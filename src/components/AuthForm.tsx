@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+const GUEST_EMAIL = process.env.NEXT_PUBLIC_GUEST_EMAIL!;
+const GUEST_PASSWORD = process.env.NEXT_PUBLIC_GUEST_PASSWORD!;
+
 export default function AuthForm() {
-  //uses the Supabase client from the context provider
   const supabase = useSupabaseClient();
   const router = useRouter();
 
@@ -21,22 +23,17 @@ export default function AuthForm() {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    await login(email, password);
+  };
+
+  const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
 
-    let error;
-
-    if (isSignIn) {
-      ({ error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      }));
-    } else {
-      ({ error } = await supabase.auth.signUp({
-        email,
-        password,
-      }));
-    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setLoading(false);
 
@@ -45,6 +42,12 @@ export default function AuthForm() {
     } else {
       router.push("/");
     }
+  };
+
+  const handleGuestLogin = async () => {
+    setEmail(GUEST_EMAIL);
+    setPassword(GUEST_PASSWORD);
+    await login(GUEST_EMAIL, GUEST_PASSWORD);
   };
 
   return (
@@ -75,6 +78,15 @@ export default function AuthForm() {
             {loading ? "Loading..." : isSignIn ? "Sign In" : "Sign Up"}
           </Button>
         </form>
+
+        <Button
+          variant="outline"
+          className="w-full text-sm"
+          onClick={handleGuestLogin}
+          disabled={loading}
+        >
+          {loading ? "Signing in as Guest..." : "Sign in as Guest"}
+        </Button>
 
         <p className="text-sm text-center">
           {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}

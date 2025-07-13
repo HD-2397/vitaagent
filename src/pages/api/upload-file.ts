@@ -40,11 +40,20 @@ export default async function handler(
     const fileName = file.originalFilename || "unknown_file.pdf";
     const fileSizeKB = Math.round(file.size / 1024);
     const buffer = fs.readFileSync(file.filepath);
+    let content;
 
-    const content =
-      file.mimetype === "application/pdf"
-        ? (await pdfParse(buffer)).text
-        : buffer.toString("utf-8");
+    try {
+      content =
+        file.mimetype === "application/pdf"
+          ? (await pdfParse(buffer)).text
+          : buffer.toString("utf-8");
+    } catch (err) {
+      console.error("PDF parsing failed:", err);
+      return res.status(400).json({
+        error:
+          "Failed to parse PDF content. Please ensure it's a valid, non-password-protected file.",
+      });
+    }
 
     // Initialize Supabase client
     // create
@@ -73,11 +82,9 @@ export default async function handler(
       });
 
     if (uploadError) {
-      return res
-        .status(500)
-        .json({
-          error: `Failed to upload file to storage: ${uploadError.message}`,
-        });
+      return res.status(500).json({
+        error: `Failed to upload file to storage: ${uploadError.message}`,
+      });
     }
     // Insert metadata into `resume_uploads` table
     const { error: insertError } = await supabase
